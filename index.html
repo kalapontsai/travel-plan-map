@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>大阪旅行規劃</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
@@ -72,6 +72,18 @@
     .transport-marker { border-color: #ff9800; color: #ff9800; }
 
     .empty-hint { text-align: center; color: #999; padding: 20px; font-size: 13px; }
+
+    /* Mobile RWD */
+    @media (max-width: 768px) {
+      .container { flex-direction: column; height: auto; }
+      .left-panel { flex: none; }
+      .right-panel { flex: none; min-width: unset; }
+      #map { height: 300px; }
+      .btn-add { display: none; }
+      .mobile-hide { display: none; }
+      table { font-size: 13px; }
+      th, td { padding: 4px 2px; }
+    }
   </style>
 </head>
 <body>
@@ -85,13 +97,13 @@
           <thead>
             <tr>
               <th>順序</th>
-              <th>日期</th>
+              <th class="mobile-hide">日期</th>
               <th>名稱</th>
               <th>地址</th>
-              <th>電話</th>
-              <th>費用</th>
-              <th>Map</th>
-              <th></th>
+              <th class="mobile-hide">電話</th>
+              <th class="mobile-hide">費用</th>
+              <th class="mobile-hide">Map</th>
+              <th class="mobile-hide"></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -104,13 +116,13 @@
           <thead>
             <tr>
               <th>順序</th>
-              <th>日期</th>
+              <th class="mobile-hide">日期</th>
               <th>名稱</th>
               <th>地址</th>
-              <th>電話</th>
-              <th>費用</th>
-              <th>Map</th>
-              <th></th>
+              <th class="mobile-hide">電話</th>
+              <th class="mobile-hide">費用</th>
+              <th class="mobile-hide">Map</th>
+              <th class="mobile-hide"></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -123,13 +135,13 @@
           <thead>
             <tr>
               <th>順序</th>
-              <th>日期</th>
+              <th class="mobile-hide">日期</th>
               <th>名稱</th>
               <th>地址</th>
-              <th>電話</th>
-              <th>費用</th>
-              <th>Map</th>
-              <th></th>
+              <th class="mobile-hide">電話</th>
+              <th class="mobile-hide">費用</th>
+              <th class="mobile-hide">Map</th>
+              <th class="mobile-hide"></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -268,20 +280,20 @@
       const items = data[type].sort((a, b) => (a.seq || 0) - (b.seq || 0));
 
       if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty-hint">尚無資料，點擊上方「+ 新增」新增項目</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-hint">尚無資料</td></tr>`;
         return;
       }
 
       tbody.innerHTML = items.map((item, idx) => `
         <tr>
           <td><input type="number" value="${item.seq || ''}" onchange="updateField('${type}', ${idx}, 'seq', this.value)" min="1"></td>
-          <td><input type="date" value="${item.date || ''}" onchange="updateField('${type}', ${idx}, 'date', this.value)"></td>
+          <td class="mobile-hide"><input type="date" value="${item.date || ''}" onchange="updateField('${type}', ${idx}, 'date', this.value)"></td>
           <td><input type="text" value="${item.name || ''}" placeholder="名稱" onchange="updateField('${type}', ${idx}, 'name', this.value)"></td>
           <td><input type="text" value="${item.address || ''}" placeholder="地址" onchange="updateField('${type}', ${idx}, 'address', this.value)"></td>
-          <td><input type="text" value="${item.tel || ''}" placeholder="電話" onchange="updateField('${type}', ${idx}, 'tel', this.value)"></td>
-          <td><input type="text" value="${item.cost || ''}" placeholder="費用" onchange="updateField('${type}', ${idx}, 'cost', this.value)"></td>
-          <td><input type="text" value="${item.map_url || ''}" placeholder="34.68,135.50" onchange="updateField('${type}', ${idx}, 'map_url', this.value)"></td>
-          <td><button class="btn btn-del" onclick="deleteRow('${type}', ${idx})">刪</button></td>
+          <td class="mobile-hide"><input type="text" value="${item.tel || ''}" placeholder="電話" onchange="updateField('${type}', ${idx}, 'tel', this.value)"></td>
+          <td class="mobile-hide"><input type="text" value="${item.cost || ''}" placeholder="費用" onchange="updateField('${type}', ${idx}, 'cost', this.value)"></td>
+          <td class="mobile-hide"><input type="text" value="${item.map_url || ''}" placeholder="34.68,135.50" onchange="updateField('${type}', ${idx}, 'map_url', this.value)"></td>
+          <td class="mobile-hide"><button class="btn btn-del" onclick="deleteRow('${type}', ${idx})">刪</button></td>
         </tr>
       `).join('');
     }
