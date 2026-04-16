@@ -76,12 +76,12 @@
     /* Mobile RWD */
     @media (max-width: 768px) {
       .container { flex-direction: column; height: auto; }
-      .left-panel { flex: none; }
+      .left-panel { flex: none; overflow-x: auto; }
       .right-panel { flex: none; min-width: unset; }
       #map { height: 300px; }
       .btn-add { display: none; }
       .mobile-hide { display: none; }
-      table { font-size: 13px; }
+      table { font-size: 13px; min-width: 500px; }
       th, td { padding: 4px 2px; }
     }
   </style>
