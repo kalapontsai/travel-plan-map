@@ -166,24 +166,37 @@
     let markers = { sightseeing: [], hotel: [], transport: [] };
 
     function loadData() {
-      const saved = localStorage.getItem(DATA_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        Object.assign(data, parsed);
-      } else {
-        // Auto-load from JSON file if localStorage is empty
-        fetch('osaka_travel_data.json')
-          .then(r => r.json())
-          .then(loaded => {
-            Object.assign(data, loaded);
-            saveData();
+      // Always load from JSON file first, then override with localStorage if available
+      fetch('osaka_travel_data.json')
+        .then(r => r.json())
+        .then(loaded => {
+          Object.assign(data, loaded);
+          // Merge with localStorage if exists (localStorage takes priority for user edits)
+          const saved = localStorage.getItem(DATA_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.sightseeing) data.sightseeing = parsed.sightseeing;
+            if (parsed.hotel) data.hotel = parsed.hotel;
+            if (parsed.transport) data.transport = parsed.transport;
+          }
+          saveData();
+          renderTable('sightseeing');
+          renderTable('hotel');
+          renderTable('transport');
+          updateMap();
+        })
+        .catch(() => {
+          // If JSON fails, try localStorage
+          const saved = localStorage.getItem(DATA_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            Object.assign(data, parsed);
             renderTable('sightseeing');
             renderTable('hotel');
             renderTable('transport');
             updateMap();
-          })
-          .catch(() => {});
-      }
+          }
+        });
     }
 
     function saveData() {
