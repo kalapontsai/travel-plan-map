@@ -296,8 +296,12 @@
 
     function updateMap() {
       // Clear existing markers
-      Object.values(markers).forEach(group => group.forEach(m => map.removeLayer(m)));
-      markers = { sightseeing: [], hotel: [], transport: [] };
+      if (markers) {
+        Object.values(markers).forEach(group => {
+          if (Array.isArray(group)) group.forEach(m => map.removeLayer(m));
+        });
+      }
+      markers = { sightseeing: [], hotel: [], transport: [], currentLocation: null };
 
       const allItems = [
         ...data.sightseeing.map(i => ({ ...i, category: 'sightseeing' })),
