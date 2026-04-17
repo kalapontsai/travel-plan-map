@@ -86,7 +86,7 @@
       table { font-size: 13px; min-width: 500px; }
       th, td { padding: 4px 2px; }
       .btn-add { display: inline-block; }
-      .current-location-btn { display: block; margin-top: 10px; }
+      .current-location-btn { display: block !important; width: 100%; padding: 12px; font-size: 16px; margin-top: 10px; text-align: center; }
     }
     .current-location-btn { display: none; background: #9c27b0; color: white; }
     .current-location-marker { background: #9c27b0; border: 2px solid #9c27b0; color: white; }
@@ -157,8 +157,8 @@
 
     <div class="right-panel">
       <div id="map"></div>
-  <button class="btn current-location-btn" onclick="getCurrentLocation()">取得目前位置</button>
     </div>
+    <button class="btn current-location-btn" onclick="getCurrentLocation()">取得目前位置</button>
   </div>
 
   <div style="padding: 10px 20px; display: flex; gap: 10px;">
