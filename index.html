@@ -72,6 +72,8 @@
     .hotel-marker { border-color: #4caf50; color: #4caf50; }
     .transport-marker { border-color: #ff9800; color: #ff9800; }
 
+    .current-location-marker { border-color: #9c27b0; color: #9c27b0; }
+
     .empty-hint { text-align: center; color: #999; padding: 20px; font-size: 13px; }
 
     /* Mobile RWD */
@@ -80,11 +82,14 @@
       .left-panel { flex: none; overflow-x: auto; }
       .right-panel { flex: none; min-width: unset; }
       #map { height: 300px; }
-      .btn-add { display: none; }
       .mobile-hide { display: none; }
       table { font-size: 13px; min-width: 500px; }
       th, td { padding: 4px 2px; }
+      .btn-add { display: inline-block; }
+      .current-location-btn { display: block; margin-top: 10px; }
     }
+    .current-location-btn { display: none; background: #9c27b0; color: white; }
+    .current-location-marker { background: #9c27b0; border: 2px solid #9c27b0; color: white; }
   </style>
 </head>
 <body>
@@ -152,6 +157,7 @@
 
     <div class="right-panel">
       <div id="map"></div>
+  <button class="btn current-location-btn" onclick="getCurrentLocation()">取得目前位置</button>
     </div>
   </div>
 
@@ -176,7 +182,8 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    let markers = { sightseeing: [], hotel: [], transport: [] };
+    let markers = { sightseeing: [], hotel: [], transport: [], currentLocation: null };
+    let currentLocationMarker = null;
 
     function loadData() {
       // Always load from JSON file first, then override with localStorage if available
@@ -231,6 +238,51 @@
         iconSize: [28, 28],
         iconAnchor: [14, 14]
       });
+    }
+
+    function getCurrentLocation() {
+      if (!navigator.geolocation) {
+        alert('您的瀏覽器不支援定位功能');
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
+          
+          // Remove existing current location marker
+          if (currentLocationMarker) {
+            map.removeLayer(currentLocationMarker);
+          }
+          
+          // Create new marker with different style
+          currentLocationMarker = L.marker([lat, lng], {
+            icon: L.divIcon({
+              className: '',
+              html: '<div class="marker-label current-location-marker" style="width:36px;height:36px;font-size:14px;">&#9679;</div>',
+              iconSize: [36, 36],
+              iconAnchor: [18, 18]
+            })
+          }).addTo(map)
+          .bindPopup(`<strong>目前位置</strong><br>緯度: ${lat.toFixed(6)}<br>經度: ${lng.toFixed(6)}<br>精度: ${accuracy.toFixed(0)}m`)
+          .openPopup();
+          
+          // Pan to current location
+          map.setView([lat, lng], 15);
+        },
+        (error) => {
+          let msg = '定位失敗';
+          switch(error.code) {
+            case 1: msg = '請給予定位權限'; break;
+            case 2: msg = '無法取得位置'; break;
+            case 3: msg = '定位逾時'; break;
+          }
+          alert(msg);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
     }
 
     function updateMap() {
