@@ -186,18 +186,20 @@
     let currentLocationMarker = null;
 
     function loadData() {
-      // Always load from JSON file first, then override with localStorage if available
-      fetch('osaka_travel_data.json')
+      // Always load from JSON file first, then merge with localStorage
+      fetch('travel_plan.json')
         .then(r => r.json())
         .then(loaded => {
           Object.assign(data, loaded);
           // Merge with localStorage if exists (localStorage takes priority for user edits)
           const saved = localStorage.getItem(DATA_KEY);
           if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed.sightseeing) data.sightseeing = parsed.sightseeing;
-            if (parsed.hotel) data.hotel = parsed.hotel;
-            if (parsed.transport) data.transport = parsed.transport;
+            try {
+              const parsed = JSON.parse(saved);
+              if (parsed.sightseeing) data.sightseeing = parsed.sightseeing;
+              if (parsed.hotel) data.hotel = parsed.hotel;
+              if (parsed.transport) data.transport = parsed.transport;
+            } catch(e) {}
           }
           saveData();
           renderTable('sightseeing');
@@ -205,16 +207,23 @@
           renderTable('transport');
           updateMap();
         })
-        .catch(() => {
+        .catch((e) => {
+          console.error('JSON load error:', e);
           // If JSON fails, try localStorage
           const saved = localStorage.getItem(DATA_KEY);
           if (saved) {
-            const parsed = JSON.parse(saved);
-            Object.assign(data, parsed);
-            renderTable('sightseeing');
-            renderTable('hotel');
-            renderTable('transport');
-            updateMap();
+            try {
+              const parsed = JSON.parse(saved);
+              Object.assign(data, parsed);
+              renderTable('sightseeing');
+              renderTable('hotel');
+              renderTable('transport');
+              updateMap();
+            } catch(e2) {
+              alert('無法讀取資料，請重新整理頁面');
+            }
+          } else {
+            alert('無法讀取 travel_plan.json，請檢查網路連線');
           }
         });
     }
