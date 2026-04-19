@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; background: #f5f5f5; }
+    body { font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; background: #1a1a2e; color: #eee; }
     h1 { text-align: center; padding: 20px; background: #e91e63; color: white; }
 
     .container { display: flex; gap: 20px; padding: 20px; height: calc(100vh - 80px); }
@@ -15,10 +15,10 @@
     .right-panel { flex: 1; min-width: 400px; }
 
     .section {
-      background: white;
+      background: #16213e;
       border-radius: 8px;
       padding: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
     .section h2 {
       margin-bottom: 10px;
@@ -29,18 +29,19 @@
       align-items: center;
       gap: 10px;
     }
-    .section.sightseeing h2 { color: #2196f3; border-color: #2196f3; }
-    .section.hotel h2 { color: #4caf50; border-color: #4caf50; }
-    .section.transport h2 { color: #ff9800; border-color: #ff9800; }
+    .section.sightseeing h2 { color: #4fc3f7; border-color: #4fc3f7; }
+    .section.hotel h2 { color: #81c784; border-color: #81c784; }
+    .section.transport h2 { color: #ffb74d; border-color: #ffb74d; }
 
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { border: 1px solid #ddd; padding: 6px 4px; text-align: left; }
-    th { background: #f0f0f0; font-weight: 600; }
+    th, td { border: 1px solid #333; padding: 6px 4px; text-align: left; }
+    th { background: #0f3460; font-weight: 600; }
     input[type="text"], input[type="number"], input[type="date"] {
-      width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px;
+      width: 100%; padding: 4px; border: 1px solid #444; border-radius: 4px; font-size: 13px;
+      background: #1a1a2e;
+      color: #eee;
     }
     input[type="number"] { width: 50px; }
-    input[name="map_url"] { width: 80px; }
 
     .btn {
       padding: 6px 12px;
@@ -49,14 +50,15 @@
       cursor: pointer;
       font-size: 13px;
     }
-    .btn-add { background: #2196f3; color: white; }
-    .btn-del { background: #f44336; color: white; padding: 3px 8px; font-size: 11px; }
+    .btn-add { background: #4fc3f7; color: #1a1a2e; }
+    .btn-del { background: #ef5350; color: white; padding: 3px 8px; font-size: 11px; }
+    .btn-edit { background: #7c4dff; color: white; padding: 3px 8px; font-size: 11px; }
     .btn-import, .btn-export { position: relative; margin-top: 10px; background: #ff9800; color: white; padding: 10px 20px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); border: none; border-radius: 4px; cursor: pointer; }
 
-    #map { height: 100%; min-height: 500px; border-radius: 8px; }
+    #map { height: 100%; min-height: 500px; border-radius: 8px; filter: brightness(0.8) hue-rotate(180deg); }
 
     .marker-label {
-      background: white;
+      background: #1a1a2e;
       border: 2px solid;
       border-radius: 50%;
       width: 28px;
@@ -68,13 +70,13 @@
       font-size: 12px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.3);
     }
-    .sightseeing-marker { border-color: #2196f3; color: #2196f3; }
-    .hotel-marker { border-color: #4caf50; color: #4caf50; }
-    .transport-marker { border-color: #ff9800; color: #ff9800; }
+    .sightseeing-marker { border-color: #4fc3f7; color: #4fc3f7; }
+    .hotel-marker { border-color: #81c784; color: #81c784; }
+    .transport-marker { border-color: #ffb74d; color: #ffb74d; }
 
     .current-location-marker { border-color: #9c27b0; color: #9c27b0; }
 
-    .empty-hint { text-align: center; color: #999; padding: 20px; font-size: 13px; }
+    .empty-hint { text-align: center; color: #666; padding: 20px; font-size: 13px; }
 
     /* Mobile RWD */
     @media (max-width: 768px) {
@@ -83,13 +85,16 @@
       .right-panel { flex: none; min-width: unset; }
       #map { height: 300px; }
       .mobile-hide { display: none; }
-      table { font-size: 13px; min-width: 500px; }
+      table { font-size: 13px; min-width: 400px; }
       th, td { padding: 4px 2px; }
-      .btn-add { display: inline-block; }
+      .btn-add, .btn-edit { display: inline-block; }
       .current-location-btn { display: block !important; width: 100%; padding: 12px; font-size: 16px; margin-top: 10px; text-align: center; }
     }
     .current-location-btn { display: none; background: #9c27b0; color: white; }
     .current-location-marker { background: #9c27b0; border: 2px solid #9c27b0; color: white; }
+    .leaflet-container { background: #1a1a2e; }
+    .leaflet-popup-content-wrapper { background: #16213e; color: #eee; }
+    .leaflet-popup-tip { background: #16213e; }
   </style>
 </head>
 <body>
@@ -105,11 +110,7 @@
               <th>順序</th>
               <th>日期</th>
               <th>名稱</th>
-              <th>地址</th>
-              <th class="mobile-hide">電話</th>
-              <th class="mobile-hide">費用</th>
-              <th class="mobile-hide">Map</th>
-              <th class="mobile-hide"></th>
+              <th></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -124,11 +125,7 @@
               <th>順序</th>
               <th>日期</th>
               <th>名稱</th>
-              <th>地址</th>
-              <th class="mobile-hide">電話</th>
-              <th class="mobile-hide">費用</th>
-              <th class="mobile-hide">Map</th>
-              <th class="mobile-hide"></th>
+              <th></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -143,11 +140,7 @@
               <th>順序</th>
               <th>日期</th>
               <th>名稱</th>
-              <th>地址</th>
-              <th class="mobile-hide">電話</th>
-              <th class="mobile-hide">費用</th>
-              <th class="mobile-hide">Map</th>
-              <th class="mobile-hide"></th>
+              <th></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -186,12 +179,10 @@
     let currentLocationMarker = null;
 
     function loadData() {
-      // Always load from JSON file first, then merge with localStorage
       fetch('travel_plan.json')
         .then(r => r.json())
         .then(loaded => {
           Object.assign(data, loaded);
-          // Merge with localStorage if exists (localStorage takes priority for user edits)
           const saved = localStorage.getItem(DATA_KEY);
           if (saved) {
             try {
@@ -209,7 +200,6 @@
         })
         .catch((e) => {
           console.error('JSON load error:', e);
-          // If JSON fails, try localStorage
           const saved = localStorage.getItem(DATA_KEY);
           if (saved) {
             try {
@@ -220,10 +210,8 @@
               renderTable('transport');
               updateMap();
             } catch(e2) {
-              alert('無法讀取資料，請重新整理頁面');
+              alert('無法讀取資料');
             }
-          } else {
-            alert('無法讀取 travel_plan.json，請檢查網路連線');
           }
         });
     }
@@ -240,7 +228,6 @@
     }
 
     function createMarkerIcon(type, label) {
-      const colors = { sightseeing: '#2196f3', hotel: '#4caf50', transport: '#ff9800' };
       return L.divIcon({
         className: '',
         html: `<div class="marker-label ${type}-marker">${label}</div>`,
@@ -261,12 +248,10 @@
           const lng = position.coords.longitude;
           const accuracy = position.coords.accuracy;
           
-          // Remove existing current location marker
           if (currentLocationMarker) {
             map.removeLayer(currentLocationMarker);
           }
           
-          // Create new marker with different style
           currentLocationMarker = L.marker([lat, lng], {
             icon: L.divIcon({
               className: '',
@@ -278,7 +263,6 @@
           .bindPopup(`<strong>目前位置</strong><br>緯度: ${lat.toFixed(6)}<br>經度: ${lng.toFixed(6)}<br>精度: ${accuracy.toFixed(0)}m`)
           .openPopup();
           
-          // Pan to current location
           map.setView([lat, lng], 15);
         },
         (error) => {
@@ -295,7 +279,6 @@
     }
 
     function updateMap() {
-      // Clear existing markers
       if (markers) {
         Object.values(markers).forEach(group => {
           if (Array.isArray(group)) group.forEach(m => map.removeLayer(m));
@@ -330,14 +313,10 @@
     }
 
     function parseGeoUrl(url) {
-      // Handle Google Maps URL
       let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
       if (match) return [parseFloat(match[1]), parseFloat(match[2])];
-
-      // Handle direct lat,lng format
       match = url.match(/^\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
       if (match) return [parseFloat(match[1]), parseFloat(match[2])];
-
       return null;
     }
 
@@ -346,7 +325,7 @@
       const items = data[type].sort((a, b) => (a.seq || 0) - (b.seq || 0));
 
       if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty-hint">尚無資料</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-hint">尚無資料</td></tr>`;
         return;
       }
 
@@ -355,18 +334,17 @@
           <td><input type="number" value="${item.seq || ''}" onchange="updateField('${type}', ${idx}, 'seq', this.value)" min="1"></td>
           <td><input type="date" value="${item.date || ''}" onchange="updateField('${type}', ${idx}, 'date', this.value)"></td>
           <td><input type="text" value="${item.name || ''}" placeholder="名稱" onchange="updateField('${type}', ${idx}, 'name', this.value)"></td>
-          <td><input type="text" value="${item.address || ''}" placeholder="地址" onchange="updateField('${type}', ${idx}, 'address', this.value)"></td>
-          <td class="mobile-hide"><input type="text" value="${item.tel || ''}" placeholder="電話" onchange="updateField('${type}', ${idx}, 'tel', this.value)"></td>
-          <td class="mobile-hide"><input type="text" value="${item.cost || ''}" placeholder="費用" onchange="updateField('${type}', ${idx}, 'cost', this.value)"></td>
-          <td class="mobile-hide"><input type="text" value="${item.map_url || ''}" placeholder="34.68,135.50" onchange="updateField('${type}', ${idx}, 'map_url', this.value)"></td>
-          <td class="mobile-hide"><button class="btn btn-del" onclick="deleteRow('${type}', ${idx})">刪</button></td>
+          <td>
+            <button class="btn btn-edit" onclick="openEditPage('${type}', ${idx})">編輯</button>
+            <button class="btn btn-del" onclick="deleteRow('${type}', ${idx})">刪</button>
+          </td>
         </tr>
       `).join('');
     }
 
     function addRow(type) {
       const maxSeq = data[type].length > 0 ? Math.max(...data[type].map(i => i.seq || 0)) : 0;
-      data[type].push({ seq: maxSeq + 1, date: '', name: '', address: '', tel: '', cost: '', map_url: '' });
+      data[type].push({ seq: maxSeq + 1, date: '', name: '', address: '', tel: '', cost: '', map_url: '', notes: '' });
       saveData();
       renderTable(type);
       updateMap();
@@ -383,6 +361,23 @@
       saveData();
       renderTable(type);
       updateMap();
+    }
+
+    function openEditPage(type, idx) {
+      const item = data[type][idx];
+      const params = new URLSearchParams({
+        type: type,
+        idx: idx,
+        seq: item.seq || '',
+        date: item.date || '',
+        name: item.name || '',
+        address: item.address || '',
+        tel: item.tel || '',
+        cost: item.cost || '',
+        map_url: item.map_url || '',
+        notes: item.notes || ''
+      });
+      window.location.href = 'edit.html?' + params.toString();
     }
 
     function exportJSON() {
